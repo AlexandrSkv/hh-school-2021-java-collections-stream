@@ -65,8 +65,7 @@ public class Task8 implements Task {
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
    // Наверное можно проще
-    return persons1.equals(persons2);
-   // Эту функцию вообще нужно удалить...
+   return persons1.stream().anyMatch(persons2::contains);
   }
 
   //...
