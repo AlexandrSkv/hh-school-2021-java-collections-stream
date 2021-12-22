@@ -3,10 +3,7 @@ package tasks;
 import common.Person;
 import common.Task;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,7 +20,7 @@ public class Task8 implements Task {
 
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
   public List<String> getNames(List<Person> persons) {
-    //Использую skip()
+    //Использую skip(). Так не изменится исходный List<Person> persons, вдруг наша фальшивая персона еще понадобиться
     return persons.stream()
     .map(Person::getFirstName)
     .skip(1)
@@ -32,45 +29,49 @@ public class Task8 implements Task {
 
   //ну и различные имена тоже хочется
   public Set<String> getDifferentNames(List<Person> persons) {
-    //Удалил .distinct(), set не может иметь повторений
-    return getNames(persons).stream()
-    .collect(Collectors.toSet());
+    //Удалил .distinct() и заодно вообще stream()
+    return new HashSet<>(getNames(persons));
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
   public String convertPersonToString(Person person) {
-
-    //Удалил один из SecondName, был явно лишний
-
-    String result = "";
-
-    if (person.getFirstName() != null) {
-      result += person.getFirstName();
-    }
-
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
-    }
-       
-    return result;
+    //Воспользуемся Collectors.joining
+    return Stream.of(person.getFirstName(), person.getMiddleName(), person.getSecondName())
+            .filter(Objects::nonNull)
+            .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    // Воспользуемся стримом
+    // Воспользуемся стримом и добавим фунцию мержа в toMap!
     return persons.stream()
-    .collect(Collectors.toMap(Person::getId, x -> convertPersonToString(x)));
+    .collect(Collectors.toMap(Person::getId, person -> convertPersonToString(person), (a,b) -> a));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-   // Наверное можно проще
+   /* В исходном случае сложность гарантирована была O(n*m),
+   а в случае anyMatch() - это "short-circuiting terminal operation", и результат может быть лучше.
+   Однако в самом плохом случае - все равно O(n*m).
+
+   По сути тоже самое без стрима:
+
+   for (Person person1 : persons1) {
+      for (Person person2 : persons2) {
+        if (person1.equals(person2)) {
+          return true;
+        }
+      }
+    }
+    return false; */
+
    return persons1.stream().anyMatch(persons2::contains);
   }
 
   //...
   public long countEven(Stream<Integer> numbers) {
     //Считаем четные числа без дополнительной переменной с помощью count()
+    //«Не следует привлекать новые сущности без крайней на то необходимости»
     return numbers
     .filter(num -> num % 2 == 0)
     .count();

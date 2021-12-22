@@ -23,14 +23,13 @@ public class Task1 implements Task {
     Set<Person> persons = PersonService.findPersons(personIds);
 
     // Нужна только карта соответствий
-    Map<Integer, Person> personNameId = persons.stream()
-    .collect(Collectors.toMap(Person::getId, x -> x));
+    Map<Integer, Person> idPersonsMap = persons.stream()
+            .collect(Collectors.toMap(Person::getId, person -> person));
  
     // Собираем в лист по порядку указанному в personIds. Асимптотика метода O(n)
     return personIds.stream()
-    .map(x -> personNameId.get(x))
-    .collect(Collectors.toList());
-
+            .map(personId -> idPersonsMap.get(personId))
+            .collect(Collectors.toList());
   }
 
   @Override

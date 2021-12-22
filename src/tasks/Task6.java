@@ -27,14 +27,12 @@ public class Task6 implements Task {
     Map<Integer, String> areasNameId = areas.stream()
     .collect(Collectors.toMap(Area::getId, Area::getName));
 
-    Map<Integer, String> personNameId = persons.stream()
-    .collect(Collectors.toMap(Person::getId, Person::getFirstName));
-
     // Теперь когда есть все что нужно, легко собираем и возвращаем
     return persons.stream()
-    .map(Person::getId)
-    .flatMap(x -> personAreaIds.get(x).stream().map(y -> personNameId.get(x) + " - " + areasNameId.get(y)))
-    .collect(Collectors.toSet());
+            .flatMap(person -> personAreaIds.get(person.getId())
+                    .stream()
+                    .map(personId -> person.getFirstName() + " - " + areasNameId.get(personId)))
+            .collect(Collectors.toSet());
    
   }
 
